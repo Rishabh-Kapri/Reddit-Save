@@ -3,7 +3,15 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
-  production: false
+  production: false,
+
+  accessToken: 'https://www.reddit.com/api/v1/access_token',
+  oauth: 'https://oauth.reddit.com',
+
+  redirectUri: 'http://localhost:4200/auth_callback',
+  clientId: 'zPBnx_vtL5qndQ',
+  clientSecret: 'Y7r0jH0AkY0shKhLGvFp4TtXxBI'
+
 };
 
 /*

@@ -1,0 +1,21 @@
+SERVICES
+
+    1. Auth service using Oauth2
+        -- See how to implement oauth2 in angular
+    2. Fetching saved posts based on the user id
+
+COMPONENTS
+
+    1. Search functionality
+        -- Filter through subreddits and posts.
+        -- Start with basic search and then maybe add a better search with autocomplete
+    2. Circle
+        -- This will show the different unique subreddits on all the posts
+        -- Selecting a subreddit will open the saved posts from that subreddit only
+        -- Also a "ALL" option to get all the saved posts
+    3. Card
+        -- Show saved posts, comments in a card format
+        -- Need to see how the UI will be implemented
+    4. Menu
+        -- A menu bar to logout
+        // Add other functionalities
