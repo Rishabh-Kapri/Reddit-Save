@@ -6,9 +6,10 @@ import { stringify } from 'querystring';
 })
 export class StateService {
 
-  public state: string;
-  public user = {};
-  public saved = [];
+  state: string;
+  user = {};
+  saved = [];
+  after = '';
 
   private possible = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
 
@@ -16,27 +17,6 @@ export class StateService {
     this.user['bearerToken'] = localStorage.getItem('token');
     this.user['refreshToken'] = localStorage.getItem('refresh');
     this.user['username'] = localStorage.getItem('name');
-  }
-
-  validateToken(token: string, isBearer: boolean) {
-
-    if (!token) {
-      return false;
-    }
-
-    const time = localStorage.getItem('time') ? localStorage.getItem('time') : '';
-
-    if (!time) {
-      return false;
-    }
-    const tillValid = Number(time) + 3600;
-    const now = Math.round(new Date().getTime() / 1000);
-
-    if ((now - tillValid) > 3600 && isBearer) {
-      return false;
-    } else {
-      return true;
-    }
   }
 
   generateRandomString(length: number) {

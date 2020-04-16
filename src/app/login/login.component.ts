@@ -28,6 +28,7 @@ export class LoginComponent implements OnInit {
     this.activatedRoute.queryParams.subscribe(params => {
       if (params.error) {
         if (params.error === 'access_denied') {
+          // Redirect to the home page
           console.log('Hope we meet again');
         } else {
           console.log('Something went wrong');

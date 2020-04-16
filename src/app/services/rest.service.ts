@@ -54,8 +54,8 @@ export class RestService {
     return this._http.get(url, httpOptions);
   }
 
-  getSavedData() {
-    const url = this.oauthUrl + `/user/${this._state.user['username']}/saved?context=3&limit=100`;
+  getSavedData(after: string) {
+    const url = this.oauthUrl + `/user/${this._state.user['username']}/saved?context=10&count=1&after=${after}&limit=100`;
 
     const httpOptions = {
       headers: new HttpHeaders({

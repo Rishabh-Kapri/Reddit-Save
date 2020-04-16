@@ -1,9 +1,3 @@
-SERVICES
-
-    1. Auth service using Oauth2
-        -- See how to implement oauth2 in angular
-    2. Fetching saved posts based on the user id
-
 COMPONENTS
 
     1. Search functionality
@@ -18,4 +12,6 @@ COMPONENTS
         -- Need to see how the UI will be implemented
     4. Menu
         -- A menu bar to logout
-        // Add other functionalities
+    5. Status
+        -- Module to show relevant status messages
+        -- Spinner (options: book spinner, )

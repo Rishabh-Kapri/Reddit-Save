@@ -1,3 +1,15 @@
-<div *ngFor="let item of _state.saved">
-    <div>{{item.data.body}}</div>
+<div class="subreddit-container">
+    <div *ngFor="let sub of subreddit | keyvalue">
+        <div class="subreddit">
+            <span>{{sub.key}}</span>
+        </div>
+    </div>
+</div>
+
+<div *ngIf="false" class="container">
+    <div *ngFor="let item of _state.saved">
+        <div class="card">
+            <span class="item">{{item.data.body || item.data.selftext}}</span>
+        </div>
+    </div>
 </div>
