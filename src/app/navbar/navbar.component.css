@@ -1,0 +1,48 @@
+.navbar {
+    display: flex;
+    align-items: center;
+}
+
+button {
+    background: transparent;
+    color: white;
+    border: none;
+}
+
+button:disabled {
+    color: gray;
+    cursor: default;
+}
+
+.carousel {
+    margin: 5px;
+    overflow: visible;
+}
+
+.left {
+    padding-right: 10px;
+}
+
+.right {
+    padding-left: 10px;
+}
+
+.fa {
+    font-size: xx-large;
+}
+
+.nav-container {
+    width: 98%;
+    display: flex;
+}
+
+.subreddit {
+    margin: 10px;
+    background-color: rgba(221, 221, 221, 0.2);
+    color: #ddd;
+    backdrop-filter: blur(18px);
+    padding: 10px;
+    border-radius: 20px;
+    text-align: center;
+    cursor: pointer;
+}

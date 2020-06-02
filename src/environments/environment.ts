@@ -10,7 +10,10 @@ export const environment = {
 
   redirectUri: 'http://localhost:4200/auth_callback',
   clientId: 'zPBnx_vtL5qndQ',
-  clientSecret: 'Y7r0jH0AkY0shKhLGvFp4TtXxBI'
+  clientSecret: 'Y7r0jH0AkY0shKhLGvFp4TtXxBI',
+  DB_NAME: 'reddit-save-db',
+  DB_VERSION: 1,
+  DB_STORE_NAME: 'subreddits'
 
 };
 

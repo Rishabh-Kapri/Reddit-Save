@@ -27,7 +27,8 @@ export class Interceptor implements HttpInterceptor {
         }, (err: any) => {
             if (err instanceof HttpErrorResponse) {
                 if (err.status === 401) {
-                    this.isAuthenticated();
+                    // this._router.navigate(['']);
+                    // this.isAuthenticated();
                 }
                 if (err.status === 404 && !localStorage.getItem('name')) {
                     this.getUser();
@@ -38,8 +39,10 @@ export class Interceptor implements HttpInterceptor {
 
     isAuthenticated() {
         this._auth.isAuthenticated().subscribe(value => {
+            console.log(value);
             this._router.navigate(['/dashboard']);
         }, err => {
+            console.log(err);
             this._router.navigate(['']);
         });
     }

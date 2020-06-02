@@ -14,16 +14,18 @@ export class AuthService {
   ) { }
 
   // this is important because rest call will be async
-  // returning a promising will work too
+  // returning a promise will work too
   isAuthenticated(): Observable<string> {
     return new Observable((observer) => {
-      const token = this.getValueFromStorage('token');
-      const time = Number(this.getValueFromStorage('time'));
+      const token = this.getFromStorage('token');
+      const time = Number(this.getFromStorage('time'));
+      const refresh = this.getFromStorage('refresh');
 
       // Check if localStorage has been tampered with
-      if (!token || !time) {
+      if (!token || !time || !refresh) {
+        console.log('clearing localstorage');
         localStorage.clear();
-        observer.error('error');
+        observer.error('err: invalid');
         observer.complete();
       }
 
@@ -46,10 +48,9 @@ export class AuthService {
         });
       }
     });
-
   }
 
-  getValueFromStorage(item: string) {
+  getFromStorage(item: string) {
     return localStorage.getItem(item) ? localStorage.getItem(item) : '';
   }
 

@@ -22,10 +22,10 @@ export class HomeComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    if (localStorage.getItem('refresh')) {
-      this._router.navigate(['/dashboard']);
-    } else {
+    if (!localStorage.getItem('refresh')) {
       this.authorize();
+    } else {
+      this._router.navigate(['/dashboard']);
     }
   }
 

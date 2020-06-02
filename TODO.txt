@@ -1,17 +1,49 @@
-COMPONENTS
+ARCHITECTURE
+
+    ## This will remove the overhead of making rest calls to reddit api
+    ## to get saved data everytime.
+
+    1. Implement IndexedDB browser storage [X]
+        -- Create a new db(something like 'reddit-save-db') [X]
+        -- Store data as objects with key being the subreddit [X]
+    
+    2. Retrieve data from the IndexedDB [X]
+        -- If db exits and is not null get the data [X]
+        -- else create a new one, fetch data from reddit and save it to db [X]
+
+    ## This will be used to implement background sync to update the saved posts
+    3. Implement serviceWorker api
+        -- Check if data in db is different from reddit saved api
+        -- Sync saved posts when data is different
+        -- run sync atm every 30sec. Will optimise later
+        (Need to research better implementation for this as calling saved api will result in network issues)
+
+UI/UX
 
     1. Search functionality
-        -- Filter through subreddits and posts.
+        -- Filter through posts and comments.
         -- Start with basic search and then maybe add a better search with autocomplete
     2. Circle
-        -- This will show the different unique subreddits on all the posts
-        -- Selecting a subreddit will open the saved posts from that subreddit only
-        -- Also a "ALL" option to get all the saved posts
+        -- This will show the different unique subreddits on all the posts [X]
+        -- Selecting a subreddit will open the saved posts from that subreddit only [X]
+        -- Also a "ALL" option to get all the saved posts (Maybe) [X]
     3. Card
-        -- Show saved posts, comments in a card format
+        -- Show saved posts/comments in a card format
         -- Need to see how the UI will be implemented
     4. Menu
         -- A menu bar to logout
     5. Status
         -- Module to show relevant status messages
         -- Spinner (options: book spinner, )
+
+DATA FLOW
+
+    1. Home loads first
+        -- checks if refresh token is present, if yes redirect to dashboard
+        -- else redirect to reddit authorize page
+    
+    2. Login component is the auth_callback component defined in reddit app prefs
+        -- this makes rest calls to get tokens and username
+    
+    3. Dashboard component retrieves all the saved data
+        -- this will call state service to create db
