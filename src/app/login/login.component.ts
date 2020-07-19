@@ -29,7 +29,7 @@ export class LoginComponent implements OnInit {
       if (params.error) {
         if (params.error === 'access_denied') {
           // Redirect to the home page
-          console.log('Hope we meet again');
+          console.log('This is changed using just VIM');
         } else {
           console.log('Something went wrong');
         }
