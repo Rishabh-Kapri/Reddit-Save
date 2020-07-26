@@ -1,6 +1,9 @@
 import { Injectable } from '@angular/core';
+import { NgxSpinnerService } from 'ngx-spinner';
 import { environment as env } from '../../environments/environment';
-import { rejects } from 'assert';
+import { BehaviorSubject } from 'rxjs';
+import { shareReplay } from 'rxjs/operators';
+import { Router } from '@angular/router';
 
 @Injectable({
   providedIn: 'root'
@@ -11,17 +14,33 @@ export class StateService {
   user = {};
   saved = false;
   filtered;
+  filteredSource = new BehaviorSubject(null);
+  filtered$ = this.filteredSource.asObservable().pipe(shareReplay(1));
   subNames;
+  subNamesSource = new BehaviorSubject(null);
+  subNames$ = this.subNamesSource.asObservable().pipe(shareReplay(1));
   selectedSubreddit = 'All';
+  selectedSubredditSource = new BehaviorSubject('All');
+  selectedSubreddit$ = this.selectedSubredditSource.asObservable().pipe(shareReplay(1));
+  currentRouteSource = new BehaviorSubject('dashboard');
+  currentRoute$ = this.currentRouteSource.asObservable();
   after = '';
   redditDB = {};
 
   private possible = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
 
-  constructor() {
+  constructor(
+    private _spinner: NgxSpinnerService,
+    private _router: Router
+  ) {
+    console.log('State service constructor');
     this.user['bearerToken'] = localStorage.getItem('token');
     this.user['refreshToken'] = localStorage.getItem('refresh');
     this.user['username'] = localStorage.getItem('name');
+    this.currentRoute$.subscribe(route => {
+      console.log('Current Route: ', route);
+      this._router.navigate([`/${route}`]);
+    });
   }
 
   generateRandomString(length: number) {
@@ -41,7 +60,9 @@ export class StateService {
     this.getSubredditData(subName)
       .then(data => {
         this.selectedSubreddit = subName;
+        this.selectedSubredditSource.next(subName);
         this.filtered = data;
+        this.filteredSource.next(data);
         console.log(this.filtered);
       })
       .catch(console.log);
@@ -95,6 +116,7 @@ export class StateService {
 
   }
 
+  // Get subreddit names from the db
   getDataFromDb() {
     return new Promise((resolve, reject) => {
       console.log(this.redditDB);
@@ -159,5 +181,11 @@ export class StateService {
         }
       };
     });
+  }
+
+  public authorizeClient() {
+    const randString = this.generateRandomString(8);
+    document.location.href = `https://reddit.com/api/v1/authorize?client_id=${env.clientId}&response_type=code&state=${randString}
+    &redirect_uri=${env.redirectUri}&duration=permanent&scope=history+identity`;
   }
 }

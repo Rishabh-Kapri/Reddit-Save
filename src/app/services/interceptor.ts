@@ -12,9 +12,7 @@ export class Interceptor implements HttpInterceptor {
 
     constructor(
         private _auth: AuthService,
-        private _rest: RestService,
         private _state: StateService,
-        private _router: Router
     ) { }
 
     intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
@@ -27,11 +25,10 @@ export class Interceptor implements HttpInterceptor {
         }, (err: any) => {
             if (err instanceof HttpErrorResponse) {
                 if (err.status === 401) {
-                    // this._router.navigate(['']);
-                    // this.isAuthenticated();
+                    this.isAuthenticated();
                 }
                 if (err.status === 404 && !localStorage.getItem('name')) {
-                    this.getUser();
+                    this._state.currentRouteSource.next('login');
                 }
             }
         }));
@@ -39,24 +36,11 @@ export class Interceptor implements HttpInterceptor {
 
     isAuthenticated() {
         this._auth.isAuthenticated().subscribe(value => {
-            console.log(value);
-            this._router.navigate(['/dashboard']);
-        }, err => {
-            console.log(err);
-            this._router.navigate(['']);
-        });
-    }
-
-    getUser() {
-        this._rest.getUser().subscribe(response => {
-            this._state.user['username'] = response.name;
-            localStorage.setItem('name', this._state.user['username']);
-            console.log(this._state.user['username']);
-            // this._router.navigate(['/dashboard']);
-            location.reload();
-        }, err => {
-            // redirect to home
-            console.log(err);
+            if (value) {
+                this._state.currentRouteSource.next('dashboard');
+            } else {
+                this._state.currentRouteSource.next('login');
+            }
         });
     }
 }
