@@ -1,22 +1,22 @@
 <div class="navbar">
-    <div class="carousel left">
-        <button (click)="this.moveNavbar(500)" [disabled]="this.valueX === 0">
-            <i class="fa fa-caret-left"></i>
-        </button>
-    </div>
-    <div style="overflow: hidden;">
-        <div class="nav-container" [ngStyle]="{'transform': 'translateX(' + this.valueX + 'px)'}" style="
+  <div class="carousel left">
+    <button (click)="this.moveNavbar(500)" [disabled]="this.valueX === 0">
+      <i class="fa fa-caret-left"></i>
+    </button>
+  </div>
+  <div style="overflow: hidden;">
+    <div class="nav-container" [ngStyle]="{'transform': 'translateX(' + this.valueX + 'px)'}" style="
         transition: transform 300ms ease-out 0s">
-            <div *ngFor="let sub of this._state.subNames">
-                <div class="subreddit" (click)="this._state.filterSubreddit(sub)">
-                    <span>{{sub}}</span>
-                </div>
-            </div>
+      <div *ngFor="let sub of this._state.subNames$ | async">
+        <div class="subreddit" (click)="this._state.filterSubreddit(sub)">
+          <span>{{sub}}</span>
         </div>
+      </div>
     </div>
-    <div class="carousel right">
-        <button (click)="this.moveNavbar(-500)" [disabled]="this.valueX >= 1360">
-            <i class="fa fa-caret-right"></i>
-        </button>
-    </div>
+  </div>
+  <div class="carousel right">
+    <button (click)="this.moveNavbar(-500)" [disabled]="this.valueX <= -2510">
+      <i class="fa fa-caret-right"></i>
+    </button>
+  </div>
 </div>

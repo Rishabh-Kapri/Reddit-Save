@@ -1,13 +1,13 @@
 <app-navbar></app-navbar>
 <div>
-    <h2 class="subname">{{this._state.selectedSubreddit | uppercase}}</h2>
-    <div class="container">
-        <div *ngFor="let item of this._state.filtered">
-            <div class="card">
-                <p>{{item.data.body || item.data.selftext}}</p>
-                <!-- <span class="item">{{item.data.body || item.data.selftext}}</span> -->
-                <!-- <img src={{item.data.preview.images[0].source.url}}> -->
-            </div>
-        </div>
+  <h2 class="subname">{{this._state.selectedSubreddit$ | async}}</h2>
+  <div class="container">
+    <div *ngFor="let item of this._state.filtered$ | async">
+      <div class="card">
+        <p>{{item.data.body || item.data.selftext}}</p>
+        <!-- <span class="item">{{item.data.body || item.data.selftext}}</span> -->
+        <!-- <img src={{item.data.preview.images[0].source.url}}> -->
+      </div>
     </div>
+  </div>
 </div>

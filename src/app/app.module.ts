@@ -7,18 +7,18 @@ import { NgxSpinnerModule } from 'ngx-spinner';
 import { Interceptor } from './services/interceptor';
 import { AppComponent } from './app.component';
 import { LoginComponent } from './login/login.component';
-import { HomeComponent } from './home/home.component';
 import { AppRoutingModule } from './app-routing.module';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { NavbarComponent } from './navbar/navbar.component';
+import { AuthCallbackComponent } from './auth-callback/auth-callback.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     LoginComponent,
-    HomeComponent,
     DashboardComponent,
-    NavbarComponent
+    NavbarComponent,
+    AuthCallbackComponent
   ],
   imports: [
     NgxSpinnerModule,

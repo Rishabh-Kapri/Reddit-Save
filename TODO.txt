@@ -38,12 +38,16 @@ UI/UX
 
 DATA FLOW
 
-    1. Home loads first
+    1. Login loads first
         -- checks if refresh token is present, if yes redirect to dashboard
         -- else redirect to reddit authorize page
     
-    2. Login component is the auth_callback component defined in reddit app prefs
+    2. Auth-Callback component is the auth_callback component defined in reddit app prefs
         -- this makes rest calls to get tokens and username
     
     3. Dashboard component retrieves all the saved data
         -- this will call state service to create db
+
+CHANGES IN SERVICES
+    -- refractor IndexedDB methods in relevant service
+    -- user subjects to manage state
