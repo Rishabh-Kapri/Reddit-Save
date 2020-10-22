@@ -1,46 +1,62 @@
 import { Injectable } from '@angular/core';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { environment as env } from '../../environments/environment';
-import { BehaviorSubject } from 'rxjs';
-import { shareReplay } from 'rxjs/operators';
+import { BehaviorSubject, Observable } from 'rxjs';
+import { exhaustMap, shareReplay, switchMap, tap, take, filter, map, toArray } from 'rxjs/operators';
 import { Router } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
+import { User } from '../interfaces/user.interface';
 
 @Injectable({
   providedIn: 'root'
 })
 export class StateService {
 
-  state: string;
-  user = {};
-  saved = false;
-  filtered;
-  filteredSource = new BehaviorSubject(null);
-  filtered$ = this.filteredSource.asObservable().pipe(shareReplay(1));
-  subNames;
-  subNamesSource = new BehaviorSubject(null);
-  subNames$ = this.subNamesSource.asObservable().pipe(shareReplay(1));
-  selectedSubreddit = 'All';
-  selectedSubredditSource = new BehaviorSubject('All');
-  selectedSubreddit$ = this.selectedSubredditSource.asObservable().pipe(shareReplay(1));
-  currentRouteSource = new BehaviorSubject('dashboard');
-  currentRoute$ = this.currentRouteSource.asObservable();
   after = '';
   redditDB = {};
+  state: string;
+  user: User = {
+    bearerToken: '',
+    refreshToken: '',
+    username: ''
+  };
+  saved = false;
+  filtered;
+  subNames: Array<string>;
+  // selectedSubreddit = 'All';
 
-  private possible = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  private readonly _saveData = new BehaviorSubject([]);
+  private readonly _allSubreddits = new BehaviorSubject<Array<string>>(null);
+  private readonly _filteredData = new BehaviorSubject(null);
+  private readonly _selectedSubreddit = new BehaviorSubject<string>('All');
+  private readonly _currentRoute = new BehaviorSubject<string>('dashboard');
+  _refresh = new BehaviorSubject(null);
+  _dummy = this._refresh.pipe(
+    switchMap(() => this._http.get('https://jsonplaceholder.typicode.com/todos/1'))
+  );
+
+  readonly saveData$ = this._saveData.asObservable().pipe(shareReplay(1));
+  readonly allSubreddits$ = this._allSubreddits.asObservable().pipe(shareReplay(1));
+  readonly filteredData$ = this._filteredData.asObservable().pipe(shareReplay(1));
+  readonly selectedSubreddit$ = this._selectedSubreddit.asObservable().pipe(shareReplay(1));
+  readonly currentRoute$ = this._currentRoute.asObservable();
+
+  private readonly possible = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
 
   constructor(
+    private _http: HttpClient,
     private _spinner: NgxSpinnerService,
     private _router: Router
   ) {
     console.log('State service constructor');
-    this.user['bearerToken'] = localStorage.getItem('token');
-    this.user['refreshToken'] = localStorage.getItem('refresh');
-    this.user['username'] = localStorage.getItem('name');
-    this.currentRoute$.subscribe(route => {
-      console.log('Current Route: ', route);
-      this._router.navigate([`/${route}`]);
-    });
+    this.user.bearerToken = localStorage.getItem('token');
+    this.user.refreshToken = localStorage.getItem('refresh');
+    this.user.username = localStorage.getItem('name');
+    // this.currentRoute$.subscribe(route => {
+    //   console.log('Current Route: ', route);
+    //   this._router.navigate([`/${route}`]);
+    // });
+    this._dummy.pipe(tap(val => console.log(val)));
   }
 
   generateRandomString(length: number) {
@@ -53,19 +69,78 @@ export class StateService {
     return text;
   }
 
+  set saveData(data) {
+    this._saveData.next(data);
+  }
+
+  get saveData() {
+    return this._saveData.value;
+  }
+
+  set allSubreddits(data: Array<string>) {
+    this._allSubreddits.next(data);
+  }
+
+  get allSubreddits() {
+    return this._allSubreddits.value;
+  }
+
+  set filteredData(data) {
+    this._filteredData.next(data);
+  }
+
+  get filteredData() {
+    return this._filteredData.value;
+  }
+
+  set selectedSubreddit(subreddit: string) {
+    this._selectedSubreddit.next(subreddit);
+  }
+
+  get selectedSubreddit() {
+    return this._selectedSubreddit.value;
+  }
+
+  set currentRoute(route: string) {
+    this._currentRoute.next(route);
+  }
+
+  // background sync
+  syncSaves() {
+    // TODO
+    // 1. behaviourSubject when refresh button is clicked
+    // 2. listen to that subject in this method
+    // 3. get new saves from reddit
+    // 4. delete old saves
+    // 5. put these new saves
+  }
+
   // TODO
   // 1. Move all the db methods to its own service
   filterSubreddit(subName: string) {
-    console.log(subName);
-    this.getSubredditData(subName)
-      .then(data => {
-        this.selectedSubreddit = subName;
-        this.selectedSubredditSource.next(subName);
-        this.filtered = data;
-        this.filteredSource.next(data);
-        console.log(this.filtered);
-      })
-      .catch(console.log);
+    // this._refresh.next(subName);
+    this.saveData$.pipe(
+      take(1),
+      switchMap(saves => saves),
+      filter(save => subName === 'All' || save['data']['subreddit'] === subName),
+      tap(val => console.log(val)),
+      toArray()
+      // map(val => val.filter(save => save['data']['subreddit'] === subName || subName === 'All')), // Another method to do the same
+    ).subscribe(val => {
+      this.selectedSubreddit = subName;
+      this.filteredData = val;
+    });
+    console.log(this.filteredData);
+
+    // this.getSubredditData(subName).subscribe(data => {
+    //   this.selectedSubreddit = subName;
+    //   this._selectedSubreddit.next(subName);
+    //   this.filtered = data;
+    //   this.filteredData = data;
+    //   console.log(this.filtered);
+    // }, err => {
+    //   console.log(err);
+    // });
   }
 
   connectDB() {
@@ -100,9 +175,10 @@ export class StateService {
   addDataToDb(data: object) {
     return new Promise((resolve, reject) => {
       const trx = this.redditDB['dbCon'].transaction([env.DB_STORE_NAME], 'readwrite').objectStore(env.DB_STORE_NAME);
-      Object.keys(data).forEach(key => {
-        trx.add(data[key], key);
-      });
+      trx.add(data, 'saves');
+      // Object.keys(data).forEach(key => {
+      // trx.add(data[key], key);
+      // });
 
       resolve('Completed');
 
@@ -118,8 +194,7 @@ export class StateService {
 
   // Get subreddit names from the db
   getDataFromDb() {
-    return new Promise((resolve, reject) => {
-      console.log(this.redditDB);
+    return new Promise<Array<string>>((resolve, reject) => {
       const trx = this.redditDB['dbCon'].transaction([env.DB_STORE_NAME]).objectStore(env.DB_STORE_NAME);
 
       const keysTrx = trx.getAllKeys();
@@ -145,39 +220,35 @@ export class StateService {
     });
   }
 
-  // Redundant for now
-  getAllSubredditData(keys, trx) {
-    let trxData = trx;
-    return new Promise((resolve, reject) => {
-      keys.forEach(key => {
-        trxData = trx.get(key);
+  getAllData(): Observable<Array<any>> {
+    let trx = this.redditDB['dbCon'].transaction([env.DB_STORE_NAME]).objectStore(env.DB_STORE_NAME);
+    trx = trx.get('saves');
 
-        trxData.onsuccess = (r) => {
-          if (!r.target.result.length || r.target.result === undefined) {
-            reject('No data');
-          } else {
-            this.saved[key] = r.target.result;
-          }
-        };
-
-        trxData.onerror = (e) => {
-          reject(e);
-        };
-      });
-      resolve('Retrieved data');
+    return new Observable((observer) => {
+      trx.onsuccess = (r) => {
+        if (r.target.result === undefined || !r.target.result) {
+          observer.error('No saves found');
+          observer.complete();
+        } else {
+          observer.next(r.target.result);
+          observer.complete();
+        }
+      };
     });
   }
 
-  getSubredditData(key) {
+  getSubredditData(key: string): Observable<any> {
     let trx = this.redditDB['dbCon'].transaction([env.DB_STORE_NAME]).objectStore(env.DB_STORE_NAME);
     trx = trx.get(key);
 
-    return new Promise((resolve, reject) => {
+    return new Observable((observer) => {
       trx.onsuccess = (r) => {
         if (r.target.result === undefined || !r.target.result) {
-          reject('No data for this subreddit');
+          observer.error('No data for this subreddit');
+          observer.complete();
         } else {
-          resolve(r.target.result);
+          observer.next(r.target.result);
+          observer.complete();
         }
       };
     });

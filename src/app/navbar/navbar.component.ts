@@ -9,6 +9,8 @@ import { StateService } from '../services/state.service';
 export class NavbarComponent implements OnInit {
 
   valueX = 0;
+  LEFT_LIMIT = 0;
+  RIGHT_LIMIT = -2950;
   constructor(
     public _state: StateService
   ) { }
@@ -18,6 +20,11 @@ export class NavbarComponent implements OnInit {
 
   moveNavbar(value: number) {
     this.valueX += value;
+    if (this.valueX <= -2950) {
+      this.valueX = -2950;
+    } else if (this.valueX >= 0) {
+      this.valueX = 0;
+    }
   }
 
 }

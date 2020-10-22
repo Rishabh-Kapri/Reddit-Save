@@ -1,10 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpEvent, HttpInterceptor, HttpHandler, HttpRequest, HttpResponse, HttpErrorResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { tap } from 'rxjs/operators';
+import { tap, filter, switchMap, take } from 'rxjs/operators';
 import { AuthService } from './auth.service';
-import { Router } from '@angular/router';
-import { RestService } from './rest.service';
 import { StateService } from './state.service';
 
 @Injectable()
@@ -25,10 +23,14 @@ export class Interceptor implements HttpInterceptor {
         }, (err: any) => {
             if (err instanceof HttpErrorResponse) {
                 if (err.status === 401) {
-                    this.isAuthenticated();
-                }
-                if (err.status === 404 && !localStorage.getItem('name')) {
-                    this._state.currentRouteSource.next('login');
+                    this._auth.isAuthenticated().pipe(
+                        filter(val => !val),
+                        tap(val => console.log(val)),
+                        take(1),
+                        switchMap(bearerToken => next.handle(req.clone({ setHeaders: { Authorization: `Bearer ${bearerToken}` } })))
+                    );
+                } else {
+                    this._auth.logout();
                 }
             }
         }));
@@ -37,9 +39,9 @@ export class Interceptor implements HttpInterceptor {
     isAuthenticated() {
         this._auth.isAuthenticated().subscribe(value => {
             if (value) {
-                this._state.currentRouteSource.next('dashboard');
+                this._state.currentRoute = 'login';
             } else {
-                this._state.currentRouteSource.next('login');
+                this._state.currentRoute = 'login';
             }
         });
     }

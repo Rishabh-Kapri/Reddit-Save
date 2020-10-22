@@ -10,7 +10,7 @@ import { take } from 'rxjs/operators';
 export class LoginComponent implements OnInit {
 
   constructor(
-    public _state: StateService,
+    private _state: StateService,
     private _router: Router
   ) { }
 
@@ -21,5 +21,9 @@ export class LoginComponent implements OnInit {
         // this._router.navigate(['/dashboard']);
       }
     });
+  }
+
+  login() {
+    this._state.authorizeClient();
   }
 }

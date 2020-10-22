@@ -3,8 +3,6 @@ import { RestService } from '../services/rest.service';
 import { StateService } from '../services/state.service';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { AuthService } from '../services/auth.service';
-import { Subscription } from 'rxjs';
-import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
   selector: 'app-dashboard',
@@ -16,25 +14,18 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   subreddit = {};
   tempSaves = [];
-  routeSubscriber: Subscription;
 
   constructor(
     private _rest: RestService,
     public _state: StateService,
     private _spinner: NgxSpinnerService,
     private _auth: AuthService,
-    private _router: Router
   ) { }
 
+  // TODO:
+  // 1. Implement circle arrow to refresh saves
   ngOnInit() {
-    this._auth.isAuthenticated().subscribe(value => {
-      console.log('Is user authenticated: ', value);
-      if (value) {
-        this.initApp();
-      } else {
-        this._state.currentRouteSource.next('login');
-      }
-    });
+    this.initApp();
   }
 
   ngOnDestroy() {
@@ -44,13 +35,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this._spinner.show();
     this._state.selectedSubreddit = 'All';
     console.log('dashboard called');
-    console.log(this.subreddit, this.tempSaves);
-    console.log(this._state.user);
     // show spinner here
     if (!this._state.saved) {
-      setTimeout(() => {
-        this.getSavedDataFromStorage();
-      }, 1000);
+      // setTimeout(() => {
+      this.getSavedDataFromStorage();
+      // }, 1000);
     } else {
       this._spinner.hide();
     }
@@ -62,15 +51,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this._state.connectDB()
       .then((result) => {
         console.log(result);
-        this._state.getDataFromDb()
-          .then(data => {
+        this._state.getAllData()
+          .subscribe(data => {
             this._spinner.hide();
             this._state.saved = true;
-            this._state.subNames = data;
-            this._state.subNamesSource.next(data);
+            this._state.saveData = data;
+            this.uniqueSubreddits();
             this._state.filterSubreddit('All');
-            console.log(this._state.saved);
-          }).catch(err => {
+          }, err => {
             console.log(err);
             this._spinner.show();
             this.getSavedDataFromReddit();
@@ -88,6 +76,16 @@ export class DashboardComponent implements OnInit, OnDestroy {
       if (this._state.after) {
         this.getSavedDataFromReddit();
       } else {
+        // this.uniqueSubreddits();
+        this._state.addDataToDb(this.tempSaves)
+          .then(res => {
+            this._state.getDataFromDb()
+              .then(res => {
+                this._spinner.hide();
+              }).catch(console.log);
+          })
+          .catch(console.log);
+        this._state.saveData = this.tempSaves;
         this.uniqueSubreddits();
       }
       console.log(this._state.saved);
@@ -98,24 +96,41 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   uniqueSubreddits() {
-    this._spinner.hide();
-    this.subreddit['All'] = [];
-    // get unique subreddits from all the saved data
-    this.tempSaves.forEach(save => {
-      this.subreddit['All'].push(save);
-      if (this.subreddit[save['data']['subreddit']]) {
-        this.subreddit[save['data']['subreddit']].push(save);
-      } else {
-        this.subreddit[save['data']['subreddit']] = [];
-        this.subreddit[save['data']['subreddit']].push(save);
-      }
-    });
-    console.log(this.subreddit);
+    // this._spinner.hide();
+    this._state.allSubreddits = [...new Set(this._state.saveData.map(save => save['data']['subreddit']))];
+    this._state.allSubreddits = ['All', ...this._state.allSubreddits];
+    this._state.allSubreddits = this._state.allSubreddits.sort((a, b) => {
+      const valA = a.toUpperCase();
+      const valB = b.toUpperCase();
 
-    this._state.addDataToDb(this.subreddit)
-      .then()
-      .then(this._state.getDataFromDb)
-      .catch(console.log);
+      if (valA < valB) {
+        return -1;
+      }
+
+      if (valA > valB) {
+        return 1;
+      }
+
+      return 0;
+    });
+    console.log(this._state.allSubreddits);
+    // this.subreddit['All'] = [];
+    // // get unique subreddits from all the saved data
+    // this.tempSaves.forEach(save => {
+    //   this.subreddit['All'].push(save);
+    //   if (this.subreddit[save['data']['subreddit']]) {
+    //     this.subreddit[save['data']['subreddit']].push(save);
+    //   } else {
+    //     this.subreddit[save['data']['subreddit']] = [];
+    //     this.subreddit[save['data']['subreddit']].push(save);
+    //   }
+    // });
+    // console.log(this.subreddit);
+
+    // this._state.addDataToDb(this.subreddit)
+    //   .then()
+    //   .then(this._state.getDataFromDb)
+    //   .catch(console.log);
   }
 
 }

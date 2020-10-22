@@ -17,25 +17,29 @@ export class AuthCallbackComponent implements OnInit {
     private _rest: RestService,
     private _state: StateService,
     private activatedRoute: ActivatedRoute,
+    private _router: Router
   ) { }
 
   ngOnInit(): void {
+    console.log('auth callback called');
+    this.validateUrlParams();
   }
 
   validateUrlParams() {
+    console.log('validating params');
     this.activatedRoute.queryParams.subscribe(params => {
       if (params.error) {
         if (params.error === 'access_denied') {
-          this._state.currentRouteSource.next('login');
+          this._state.currentRoute = 'login';
         } else {
-          this._state.currentRouteSource.next('login');
+          this._state.currentRoute = 'login';
         }
       } else {
         this.oneTimeCode = params.code;
         this.getToken();
       }
     }, err => {
-      this._state.currentRouteSource.next('login');
+      this._state.currentRoute = 'login';
     });
   }
 
@@ -51,10 +55,8 @@ export class AuthCallbackComponent implements OnInit {
         this.getUser();
       }
     }, err => {
-      // retry here 3 times
-      // if still failed redirect again
       console.log(err);
-      this._state.currentRouteSource.next('login');
+      this._state.currentRoute = 'login';
     });
   }
 
@@ -62,10 +64,11 @@ export class AuthCallbackComponent implements OnInit {
     this._rest.getUser().subscribe(response => {
       this._state.user['username'] = response.name;
       localStorage.setItem('name', this._state.user['username']);
-      this._state.currentRouteSource.next('dashboard');
+      this._state.currentRoute = 'dashboard';
+      this._router.navigate(['dashboard']);
     }, err => {
       console.log(err);
-      this._state.currentRouteSource.next('login');
+      this._state.currentRoute = 'login';
     });
   }
 }

@@ -7,8 +7,8 @@
 body {
   padding: 2em;
   /* background-color: rgb(32, 33, 33); */
-  /* background-color: #24272e; */
-  background: url(../static/tree.jpg) no-repeat fixed center;
+  background-color: #222327;
+  /* background: url(../static/tree.jpg) no-repeat fixed center; */
   background-size: cover;
   /* background-color: #EEF2F7; */
   color: #eceff4;
